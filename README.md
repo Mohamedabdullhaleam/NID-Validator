@@ -32,7 +32,7 @@ To set up the project locally, follow these steps:
 
 2. **Navigate to the project directory:**
    ```bash
-   cd egyptian-id-validator
+   cd NID-Validator
    ```
 
 3. **Install required dependencies:**
