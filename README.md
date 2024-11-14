@@ -191,32 +191,32 @@ The following test cases are covered in the unit tests to ensure functionality a
 
 ## Project Flow
 
-### 1. **Request Validation**
+1. **Request Validation**
    - The API validates the ID format to ensure it's exactly 14 digits and numeric.
 
-### 2. **Century Code Validation**
+2. **Century Code Validation**
    - The first digit represents the century code (`2` for 1900–1999, `3` for 2000–2099).
 
-### 3. **Birth Date Validation**
+3. **Birth Date Validation**
    - The birth date (`YYMMDD`) is validated for year, month, and day. Invalid dates return an error.
 
-### 4. **Leap Year Validation**
+4. **Leap Year Validation**
    - If the birth date is February 29, it is validated for leap year.
 
-### 5. **Governorate Code Validation**
+5. **Governorate Code Validation**
    - The governorate code (`VV`) is checked for validity.
 
-### 6. **Gender Validation**
+6. **Gender Validation**
    - The gender is extracted from the last digit of the birth sequence (odd for male, even for female).
 
-### 7. **Final Validation**
+7. **Final Validation**
    - If all checks pass, the API returns the extracted birth date, gender, and governorate.
 
-### 8. **Error Handling**
+8. **Error Handling**
    - Returns `400` errors for missing or invalid IDs with relevant error messages.
 
-### 9. **Swagger Documentation**
+9. **Swagger Documentation**
    - Swagger UI available at `/api-docs` for easy endpoint testing.
 
-### 10. **Edge Cases & Tests**
+10. **Edge Cases & Tests**
    - Handles edge cases like invalid dates, leap years, and gender extraction based on the birth sequence.
