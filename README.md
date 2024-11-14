@@ -7,19 +7,24 @@ A streamlined API for validating Egyptian National IDs and extracting essential 
 - [Overview](#overview)
 - [Getting Started](#getting-started)
 - [API Endpoints](#api-endpoints)
+  - [Validate National ID](#validate-national-id)
 - [Example Request](#example-request)
 - [API Documentation](#api-documentation)
 - [ID Format](#id-format)
+- [Error Handling](#error-handling)
+- [Unit Tests](#unit-tests)
+- [Test Cases Covered](#test-cases-covered)
+- [Project Flow](#project-flow)
 
 ## Overview
 
-The Egyptian National ID Validator API enables validation of Egyptian national ID numbers and extracts key details such as:
+The Egyptian National ID Validator API validates Egyptian national ID numbers and extracts key details such as:
 
 - Date of Birth
-- Gender 
+- Gender
 - Governorate of Birth
 
-Using regular expressions, this API ensures the format of each ID is correct and then parses out relevant data. The API is structured to respond with JSON, and Swagger documentation is available for easy testing and exploration.
+Using regular expressions, this API ensures the format of each ID is correct and extracts relevant data. It returns responses in JSON format and includes Swagger documentation for easy testing and exploration.
 
 ## Getting Started
 
@@ -45,25 +50,23 @@ To set up the project locally, follow these steps:
    npm start
    ```
 
-Your server should now be running, and the API is accessible at `http://127.0.0.1:8000`.
+Your server will now be running at `http://127.0.0.1:8000`.
 
 ## API Endpoints
 
 ### Validate National ID
-- **URL:** `/api/validate-id`
+- **URL:** `/api/nid/validate`
 - **Method:** POST
-- **Description:** Accepts a National ID and verifies its format, extracting the birth date, gender, and governorate if valid.
+- **Description:** Verifies the format of a National ID and extracts the birth date, gender, and governorate if valid.
 
-## Example Request
-
-**Request:**
+#### Request Example:
 ```json
 {
-  "id": "30005251234567"
+  "id": "30005250234567"
 }
 ```
 
-**Response:**
+#### Response Example:
 ```json
 {
   "valid": true,
@@ -75,32 +78,145 @@ Your server should now be running, and the API is accessible at `http://127.0.0.
 
 ## API Documentation
 
-Interactive API documentation is provided with Swagger UI, allowing you to explore and test the available endpoints.
+Interactive API documentation is available with Swagger UI, allowing you to explore and test the available endpoints.
 
 - **Swagger UI:**
   - **URL:** `/api-docs`
-  - **Description:** Allows you to view and test endpoints, providing details on request/response formats.
+  - **Description:** View and test endpoints, providing details on request/response formats.
 
 **Example Documentation URL:** `http://127.0.0.1:8000/api-docs`
 
 ## ID Format
 
-The Egyptian National ID is a 14-digit number with the following structure:
+The Egyptian National ID consists of 14 digits, structured as follows:
 
 | Segment | Description |
 | ------- | ----------- |
 | **C** (1 digit) | Century indicator (e.g., 2 for 1900–1999, 3 for 2000–2099) |
 | **YYMMDD** (6 digits) | Date of birth (YY = year, MM = month, DD = day) |
 | **VV** (2 digits) | Governorate code (e.g., 01 for Cairo, 02 for Alexandria) |
-| **IIIG** (4 digits) | Birth sequence, where the last digit indicates gender (odd for male, even for female) |
-| **X** (1 digit) | Checksum for validation (optional implementation) |
+| **IIIG** (4 digits) | Birth sequence, with the last digit indicating gender (odd for male, even for female) |
+| **X** (1 digit) | Checksum (no clear algorithm found for validation) |
 
 ### ID Example
-**ID:** `30005251234567`
+**ID:** `30005250234567`
 
 - **Century Code:** `3` (2000–2099)
 - **Date of Birth:** `2000-05-25`
 - **Governorate:** Alexandria (`02`)
-- **Gender:** Female (last digit in sequence is even)
+- **Gender:** Female (last digit is even)
 
+## Error Handling
 
+The API returns structured error responses for invalid inputs or failed validations.
+
+### Error Response Example:
+
+For an invalid National ID (incorrect length):
+
+**Request:**
+```json
+{
+  "id": "30005251234"
+}
+```
+
+**Response:**
+```json
+{
+  "valid": false,
+  "error": "ID must be exactly 14 digits"
+}
+```
+
+For an invalid birth date (e.g., February 30):
+
+**Request:**
+```json
+{
+  "id": "29802300101234"
+}
+```
+
+**Response:**
+```json
+{
+  "valid": false,
+  "error": "Invalid birth date"
+}
+```
+
+## Unit Tests
+
+Unit tests verify the correctness of the validation logic and ensure the API handles edge cases properly.
+
+### Running Unit Tests:
+
+1. **Install Jest if not already installed:**
+   ```bash
+   npm install --save-dev jest
+   ```
+
+2. **Run the tests:**
+   ```bash
+   npm test
+   ```
+
+## Test Cases Covered
+
+The following test cases are covered in the unit tests to ensure functionality and reliability:
+
+1. **Valid National IDs:** 
+   - Testing valid IDs across different governorates.
+   - Correct extraction of birth date, gender, and governorate.
+
+2. **Century Code Handling:** 
+   - Correct interpretation of century codes (`2` for 1900s, `3` for 2000s).
+
+3. **Date Validation:**
+   - **Valid Dates:** Tests valid dates, including leap years.
+   - **Invalid Dates:** Detects invalid dates such as February 30, April 31, and non-leap year February 29.
+
+4. **Gender Extraction:** 
+   - Correct gender extraction based on the last digit (odd for male, even for female).
+
+5. **Governorate Validation:** 
+   - Validates known governorate codes and maps them to their corresponding names.
+
+6. **Invalid IDs:** 
+   - Tests for invalid IDs (missing digits, incorrect length, invalid date formats).
+
+7. **Missing ID & Format Validation:** 
+   - Tests for missing `id` field or incorrect ID format (less than 14 digits, non-numeric characters).
+
+## Project Flow
+
+### 1. **Request Validation**
+   - The API validates the ID format to ensure it's exactly 14 digits and numeric.
+
+### 2. **Century Code Validation**
+   - The first digit represents the century code (`2` for 1900–1999, `3` for 2000–2099).
+
+### 3. **Birth Date Validation**
+   - The birth date (`YYMMDD`) is validated for year, month, and day. Invalid dates return an error.
+
+### 4. **Leap Year Validation**
+   - If the birth date is February 29, it is validated for leap year.
+
+### 5. **Governorate Code Validation**
+   - The governorate code (`VV`) is checked for validity.
+
+### 6. **Gender Validation**
+   - The gender is extracted from the last digit of the birth sequence (odd for male, even for female).
+
+### 7. **Final Validation**
+   - If all checks pass, the API returns the extracted birth date, gender, and governorate.
+
+### 8. **Error Handling**
+   - Returns `400` errors for missing or invalid IDs with relevant error messages.
+
+### 9. **Swagger Documentation**
+   - Swagger UI available at `/api-docs` for easy endpoint testing.
+
+### 10. **Edge Cases & Tests**
+   - Handles edge cases like invalid dates, leap years, and gender extraction based on the birth sequence.
